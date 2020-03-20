@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { addDetails } from "../actions/action";
+import { addDetails,deleteDetails } from "../actions/action";
 
 const FormWrapper = styled.div`
   text-align: center;
@@ -32,18 +32,43 @@ class Form extends Component {
     this.state = {
       post: "",
       heading: "",
-      description: ""
+      description: "",
+      disable: false,
+      enable: false
     };
   }
-  
+
   createData() {
     this.props.addDetails(
       this.state.post,
       this.state.heading,
-      this.state.description
+      this.state.description,
+      this.state.disable,
+      this.state.enable,
     );
     // store.dispatch(this.state)
   }
+
+  showDataHandler() {
+    return true;
+  }
+
+  deleteDataHandler(index) {
+    this.props.deleteDetails(
+      index
+    );
+  }
+
+  enableButtonHandler = () => {
+    if (this.state.enable === false) {
+      this.setState({ enable: true, disable: false });
+    }
+  };
+  disableButtonHandler = () => {
+    if (this.state.disable === false) {
+      this.setState({ disable: true, enable: false });
+    }
+  };
 
   render() {
     let res = this.props.details;
@@ -71,41 +96,60 @@ class Form extends Component {
             }
           />
           <span>
-            <Input type="radio" id="enable" name="radio" value="enable" />
+            <Input
+              type="radio"
+              id="enable"
+              name="radio"
+              value="enable"
+              onClick={() => this.enableButtonHandler()}
+            />
             &nbsp;&nbsp;&nbsp;
             <label htmlFor="enable">Enable</label>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <Input type="radio" id="disable" name="radio" value="disable" />
+            <Input
+              type="radio"
+              id="disable"
+              name="radio"
+              value="disable"
+              onClick={() => this.disableButtonHandler()}
+            />
             &nbsp;&nbsp;&nbsp;
             <label htmlFor="disable">Disable</label>
           </span>
           <br />
-          <Button onClick={() => this.createData()}>Submit</Button>
+
+          <Button onClick={() => this.createData()}>Create</Button>
+          <Button onClick={() => this.showDataHandler()}>Show</Button>
         </FormWrapper>
 
         {res.map((value, index) => (
-          <FormWrapper
-            style={{
-              display: "flex",
-              justifyContent: "space-around",
-              textAlign: "center",
-              flexDirection: "row"
-            }}
-            key={index}
-          >
-            <p>Index:{index + 1}</p>
-            <p>POST:{value.post}</p>
-            <p>HEADING: {value.heading}</p>
-            <p>DESCRIPTION:{value.description}</p>
-            {alert("data is successfully added")}
-          </FormWrapper>
+          <>
+            <FormWrapper
+              style={{
+                display: "flex",
+                justifyContent: "space-around",
+                textAlign: "center",
+                flexDirection: "row"
+              }}
+              key={index}
+            >
+              <p>Index:{index+1}</p>
+              <p>POST:{value.post}</p>
+              <p>HEADING: {value.heading}</p>
+              <p>DESCRIPTION:{value.description}</p>
+            </FormWrapper>
+            <div style={{ display: "block",textAlign:'center' }}>
+              <Button style={{ backgroundColor: "red", margin: '2px' }} onClick={()=>this.deleteDataHandler(index)}>Delete</Button>
+              <Button style={{ backgroundColor: "lightBlue"  , margin:'2px'}}>Edit</Button>
+            </div>
+          </>
         ))}
       </>
     );
   }
 }
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ addDetails }, dispatch);
+  return bindActionCreators({ addDetails ,deleteDetails}, dispatch);
 }
 
 const mapStateToProps = state => {
